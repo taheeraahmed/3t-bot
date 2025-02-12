@@ -1,28 +1,80 @@
 import logging
 import os
 import pathlib
+import smtplib
 from datetime import datetime, timedelta
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 
 from dotenv import load_dotenv
 from playwright.sync_api import sync_playwright
+from pydantic import BaseModel, SecretStr
 
 logging.basicConfig(
     format="[%(levelname)s] %(asctime)s - %(message)s",
     datefmt="%Y-%m-%d %H:%M:%S",
     level=logging.INFO,
 )
+BASE_DIR = pathlib.Path(__file__).parent.parent
+load_dotenv(BASE_DIR / ".env")  # Load environment variables from .env file
 
 
-def book_gym_class(username, password, gym_url):
+class UserCredentials(BaseModel):
+    gym_username: str
+    gym_password: SecretStr  # Mask passwords in logs
+    gym_url: str
+    email_sender_and_reciever: str
+    email_app_pwd: SecretStr
+
+
+def get_user_credentials() -> UserCredentials:
+    """Loads user credentials from environment variables and returns a validated object."""
+    return UserCredentials(
+        gym_username=os.getenv("GYM_USERNAME"),
+        gym_password=os.getenv("GYM_PASSWORD"),
+        gym_url=os.getenv("GYM_LOGIN_URL"),
+        email_sender_and_reciever=os.getenv("EMAIL_USER"),
+        email_app_pwd=os.getenv("EMAIL_APP_PWD"),
+    )
+
+
+def send_email(credentials: UserCredentials, subject: str, body: str) -> None:
+    """Send an email notification."""
+    try:
+        msg = MIMEMultipart()
+        msg["From"] = credentials.email_sender_and_reciever
+        msg["To"] = credentials.email_sender_and_reciever
+        msg["Subject"] = subject
+        msg.attach(MIMEText(body, "plain"))
+
+        server = smtplib.SMTP("smtp.gmail.com", 587)
+        server.starttls()
+        server.login(
+            credentials.email_sender_and_reciever,
+            credentials.email_app_pwd.get_secret_value(),
+        )
+        server.sendmail(
+            credentials.email_sender_and_reciever,
+            credentials.email_sender_and_reciever,
+            msg.as_string(),
+        )
+        server.quit()
+
+        logging.info("📩 Email notification sent successfully!")
+    except Exception as e:
+        logging.error(f"❌ Email failed to send: {e}")
+
+
+def book_gym_class(credentials: UserCredentials):
     with sync_playwright() as p:
         logger = logging.getLogger(__name__)
         browser = p.chromium.launch(headless=True)
         page = browser.new_page()
 
         # login
-        page.goto(gym_url)
-        page.fill("input#username", username)
-        page.fill("input#password", password)
+        page.goto("https://www.3t.no/logg-inn")
+        page.fill("input#username", credentials.gym_username)
+        page.fill("input#password", credentials.gym_password.get_secret_value())
         page.locator("div.button__visible:has-text('Logg inn')").click()
         page.wait_for_load_state("networkidle")
 
@@ -61,25 +113,35 @@ def book_gym_class(username, password, gym_url):
                 if "Book time" in button_text:
                     button.click()
                     logger.info("✅ Class booked successfully!")
+
+                    send_email(
+                        credentials=credentials,
+                        subject="✅ Gym Class Booked Successfully!",
+                        body=f"You have successfully booked '{title}' on {future_date} at {time}.",
+                    )
                 else:
                     logger.info("❌ Class is full. Skipping waitlist.")
+                    send_email(
+                        credentials=credentials,
+                        subject="❌ Gym Class is Full",
+                        body=f"The class '{title}' on {future_date} at {time} is full. No booking was made.",
+                    )
 
                 break
         else:
             logger.info("❌ Class not found. Maybe it's not available for booking yet.")
+            send_email(
+                credentials=credentials,
+                subject="❌ Gym Class Not Found",
+                body=f"The class '{title}' on {future_date} at {time} was not found on the booking page.",
+            )
 
         browser.close()
 
 
 if __name__ == "__main__":
-    BASE_DIR = pathlib.Path(__file__).parent.parent
-    load_dotenv(BASE_DIR / ".env")  # Load environment variables from .env file
-
-    username = os.getenv("GYM_USERNAME")
-    password = os.getenv("GYM_PASSWORD")
+    credentials = get_user_credentials()
 
     book_gym_class(
-        username=username,
-        password=password,
-        gym_url="https://www.3t.no/logg-inn",
+        credentials=credentials,
     )
