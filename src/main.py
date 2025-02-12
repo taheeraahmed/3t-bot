@@ -22,7 +22,6 @@ load_dotenv(BASE_DIR / ".env")  # Load environment variables from .env file
 class UserCredentials(BaseModel):
     gym_username: str
     gym_password: SecretStr  # Mask passwords in logs
-    gym_url: str
     email_sender_and_reciever: str
     email_app_pwd: SecretStr
 
@@ -32,7 +31,6 @@ def get_user_credentials() -> UserCredentials:
     return UserCredentials(
         gym_username=os.getenv("GYM_USERNAME"),
         gym_password=os.getenv("GYM_PASSWORD"),
-        gym_url=os.getenv("GYM_LOGIN_URL"),
         email_sender_and_reciever=os.getenv("EMAIL_USER"),
         email_app_pwd=os.getenv("EMAIL_APP_PWD"),
     )
@@ -68,7 +66,7 @@ def send_email(credentials: UserCredentials, subject: str, body: str) -> None:
 def book_gym_class(credentials: UserCredentials):
     with sync_playwright() as p:
         logger = logging.getLogger(__name__)
-        browser = p.chromium.launch(headless=True)
+        browser = p.chromium.launch(headless=False)
         page = browser.new_page()
 
         # login
