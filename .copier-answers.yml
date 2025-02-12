@@ -1,0 +1,14 @@
+# Changes here will be overwritten by Copier
+_commit: v0.0.2
+_src_path: gh:ninanor/python-template
+author_name: taheeraahmed
+debug: false
+default_branch_name: main
+docker: false
+email: taheeraahmed@nina.no
+project_name: 3t-bot
+project_slug: 3t-bot
+repo_name: 3t-bot
+repo_org: taheeraahmed
+template_type: python
+type_annotations: false
