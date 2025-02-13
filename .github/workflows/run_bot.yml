@@ -14,20 +14,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: 🛠️ Install missing Playwright dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y \
-            libgtk-3-0 libgtk-4-1 libgbm-dev libnss3 libasound2 \
-            libx11-xcb1 libxcomposite1 libxdamage1 libxfixes3 \
-            libxtst6 libxrandr2 libdrm2 libgbm1 libxshmfence1 \
-            libgl1 libegl1 libgles2 libopus0 libwoff1 \
-            libharfbuzz-icu0 libhyphen0 libsecret-1-0 libmanette-0.2-0 \
-            libavif13 libflite1 libflite-cmu-us-kal16-1 \
-            libflite-cmu-grapheme-lex-1 libflite-cmu-time-awb-1 \
-            libflite-cmu-us-rms-1 libflite-cmu-us-slt-1 \
-            libgstreamer1.0-0 libgstreamer-plugins-base1.0-0 \
-            gstreamer1.0-plugins-good gstreamer1.0-plugins-bad \
-            gstreamer1.0-libav
+        run: npx playwright install-deps
 
       - name: 🐍 Set up Python
         uses: actions/setup-python@v4
