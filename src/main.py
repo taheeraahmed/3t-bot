@@ -66,7 +66,7 @@ def send_email(credentials: UserCredentials, subject: str, body: str) -> None:
 def book_gym_class(credentials: UserCredentials):
     with sync_playwright() as p:
         logger = logging.getLogger(__name__)
-        browser = p.chromium.launch(headless=False)
+        browser = p.chromium.launch(headless=True)
         page = browser.new_page()
 
         # login
