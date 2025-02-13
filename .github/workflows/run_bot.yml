@@ -1,0 +1,48 @@
+name: Gym Booking Bot
+
+on:
+  schedule:
+    - cron: '0 8 * * 0'  # Runs every Sunday at 08:00 UTC
+  workflow_dispatch:  # Allows manual trigger
+
+jobs:
+  run-bot:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 🐍 Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: 📦 Install dependencies
+        run: |
+          pip install poetry
+          poetry install
+          playwright install  # Ensure Playwright is fully installed
+
+      - name: 🔑 Set environment variables
+        env:
+          GYM_USERNAME: ${{ secrets.GYM_USERNAME }}
+          GYM_PASSWORD: ${{ secrets.GYM_PASSWORD }}
+          EMAIL_USER: ${{ secrets.EMAIL_USER }}
+          EMAIL_APP_PWD: ${{ secrets.EMAIL_APP_PWD }}
+        run: |
+          echo "GYM_USERNAME=${{ secrets.GYM_USERNAME }}" >> $GITHUB_ENV
+          echo "GYM_PASSWORD=${{ secrets.GYM_PASSWORD }}" >> $GITHUB_ENV
+          echo "EMAIL_USER=${{ secrets.EMAIL_USER }}" >> $GITHUB_ENV
+          echo "EMAIL_APP_PWD=${{ secrets.EMAIL_APP_PWD }}" >> $GITHUB_ENV
+
+      - name: 🚀 Run the bot
+        run: poetry run python src/main.py
+
+      - name: ✅ Notify on Success
+        if: success()
+        run: echo "✅ Gym booking bot ran successfully!"
+
+      - name: ❌ Notify on Failure
+        if: failure()
+        run: echo "❌ Gym booking bot failed!"
