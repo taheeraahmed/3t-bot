@@ -2,13 +2,24 @@
 
 A bot which helps me sign up for powerpit and pilates reformer classes at 3T. I just want to get fit man.
 
-## 📦 Set-up
+## 🤖  With Github Actions
+
+To get the bot running with Github Actions, you will need to fork this repo and add the following secrets to your repo:
+
+- `GYM_USERNAME` - Your 3T email
+- `GYM_PASSWORD` - Your 3T password
+- `EMAIL_USER` - Your Gmail email
+- `EMAIL_APP_PWD` - Your Gmail app password
+
+In the `.github/workflows` folder, you will find a `run_bot.yml` file. This file contains the cron job which will run the bot every Sunday at 08:00. You can change this to your preferred time.
+
+## 📦 Local set-up
 
 First, this repo uses `poetry` for handling the python dependencies, so make sure this is downloaded. When this is done, run `poetry install` and the python environment should be up and running
 
 Now run `playwright install` in order to install playwright fully.
 
-## 🔑 Environment Variables
+### 🔑 Environment Variables
 
 The environment variables which has been defined can be seen in `.env.example`. Copy `.env.example` to `.env` and fill in your details:
 
@@ -26,7 +37,7 @@ EMAIL_APP_PWD=your_app_password # NOT YOUR REGULAR EMAIL PASSWORD, MUST BE CREAT
 - This only works if 2-Step Verification is enabled on your account!
 - To generate the `EMAIL_APP_PWD`, [go here](https://myaccount.google.com/apppasswords)
 
-## 🚀 Running the Bot
+### 🚀 Running the Bot
 
 We want to run the bot with a cron job, so it can be run at a specific time, in our case Sunday's at 08:00 in the morning.
 
