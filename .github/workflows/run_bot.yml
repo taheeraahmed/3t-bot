@@ -22,7 +22,9 @@ jobs:
         run: |
           pip install poetry
           poetry install
-          playwright install  # Ensure Playwright is fully installed
+
+      - name: 🛠️ Install Playwright
+        run: poetry run playwright install
 
       - name: 🔑 Set environment variables
         env:
