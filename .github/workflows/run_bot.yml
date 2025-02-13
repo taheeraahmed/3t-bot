@@ -2,8 +2,8 @@ name: Gym Booking Bot
 
 on:
   schedule:
-    - cron: '0 8 * * 0'
-  workflow_dispatch:
+    - cron: '56 7 * * 0'  # Runs every Sunday at 07:55 UTC
+  workflow_dispatch:  # Allows manual trigger
 
 jobs:
   run-bot:
@@ -13,7 +13,7 @@ jobs:
       - name: 📥 Checkout repository
         uses: actions/checkout@v4
 
-      - name: 🛠️ Install missing Playwright dependencies
+      - name: 🛠️ Install Playwright system dependencies
         run: npx playwright install-deps
 
       - name: 🐍 Set up Python
@@ -25,9 +25,15 @@ jobs:
         run: |
           pip install poetry
           poetry install
+          poetry run playwright install
 
-      - name: 🛠️ Install Playwright
-        run: poetry run playwright install
+      - name: ⏳ Wait until 08:00 UTC
+        run: |
+          while [ "$(date -u +'%H:%M')" != "08:00" ]; do
+            echo "Waiting for 08:00 UTC... Current time: $(date -u +'%H:%M')"
+            sleep 10
+          done
+          echo "✅ It's 08:00 UTC! Running the bot now."
 
       - name: 🔑 Set environment variables
         env:
