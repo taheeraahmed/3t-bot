@@ -4,6 +4,7 @@ version = "0.1.0"
 description = "A bot for signing up to pilates reformer and powerpit"
 authors = ["Taheera Ahmed <taheera.ahmed@nina.no>"]
 readme = "README.md"
+package-mode = false
 
 [tool.poetry.dependencies]
 python = "^3.10"
