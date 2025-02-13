@@ -131,7 +131,7 @@ def book_gym_class(credentials: UserCredentials):
             send_email(
                 credentials=credentials,
                 subject="❌ Gym Class Not Found",
-                body=f"The class '{title}' on {future_date} at {time} was not found on the booking page.",
+                body="The class was not found on the booking page.",
             )
 
         browser.close()
