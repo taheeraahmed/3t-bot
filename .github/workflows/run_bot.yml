@@ -27,13 +27,24 @@ jobs:
           poetry install
           poetry run playwright install
 
-      - name: ⏳ Wait until 08:00 UTC
+      - name: ⏳ Wait until 08:00 Norwegian Time (CET/CEST)
         run: |
-          while [ "$(date -u +'%H:%M')" != "08:00" ]; do
-            echo "Waiting for 08:00 UTC... Current time: $(date -u +'%H:%M')"
-            sleep 10
+          while true; do
+            # Get current UTC time
+            UTC_NOW=$(date -u +"%H:%M")
+            # Get Norwegian local time
+            NORWAY_NOW=$(TZ="Europe/Oslo" date +"%H:%M")
+
+            echo "🕒 Current UTC time: $UTC_NOW"
+            echo "🕒 Current Norwegian time: $NORWAY_NOW"
+
+            if [ "$NORWAY_NOW" == "08:00" ]; then
+              echo "✅ It's 08:00 in Norway! Running the bot now."
+              break
+            fi
+
+            sleep 10  # Check time every 10 seconds
           done
-          echo "✅ It's 08:00 UTC! Running the bot now."
 
       - name: 🔑 Set environment variables
         env:
