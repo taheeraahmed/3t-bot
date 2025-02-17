@@ -1,10 +1,25 @@
 import logging
 from datetime import datetime, timedelta
 
+from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
 from playwright.sync_api import sync_playwright
 
 from credentials import UserCredentials
 from send_mail import send_email
+
+
+def wait_for_page_to_load(logger, page, browser):
+    try:
+        logger.info("⏳ Waiting for page to load...")
+        page.wait_for_load_state("load", timeout=60000)
+    except PlaywrightTimeoutError:
+        logger.error("❌ Page load timeout! Printing page content for debugging.")
+        with open("error_page.html", "w") as f:
+            f.write(page.content())  # Save page content for debugging
+        browser.close()
+        raise  # Re-raise the error to stop execution
+
+    logger.info("✅ Page loaded successfully!")
 
 
 def book_gym_class(credentials: UserCredentials):
@@ -18,15 +33,15 @@ def book_gym_class(credentials: UserCredentials):
         page.fill("input#username", credentials.gym_username)
         page.fill("input#password", credentials.gym_password.get_secret_value())
         page.locator("div.button__visible:has-text('Logg inn')").click()
-        page.wait_for_load_state("networkidle")
+
+        wait_for_page_to_load(logger, page, browser)
 
         # navigate to booking page
         # get today's date and add 7 days
         future_date = (datetime.today() + timedelta(days=7)).strftime("%Y-%m-%d")
         booking_url = f"https://www.3t.no/booking/gruppetimer?FROM_DATE={future_date}&TO_DATE={future_date}"
         page.goto(booking_url)
-        page.wait_for_load_state("networkidle")
-
+        wait_for_page_to_load(logger, page, browser)
         # find the list of classes
         class_list_container = page.locator(
             "div.vertical-container.vertical-container__horizontal-placement--center.vertical-container__width--full"
