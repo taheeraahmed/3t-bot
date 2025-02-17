@@ -60,7 +60,7 @@ def book_gym_class(credentials: UserCredentials):
                 .inner_text()
             )
 
-            if "PowerPit Total Body 60" in title and "11:00" in time:
+            if "PowerPit Total Body 60" in title and "16:15" in time:
                 logger.info(f"Found the correct class: {title} at {time}")
 
                 # find the button which says "Book time"
