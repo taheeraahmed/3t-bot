@@ -2,7 +2,7 @@ name: Gym Booking Bot
 
 on:
   schedule:
-    - cron: '55 6 * * 1'  # Runs every Monday at 05:55 UTC (summer) / 06:55 UTC (winter)
+    - cron: '55 6 * * *'  # Runs every Monday at 06:55 UTC (summer) / 07:55 UTC (winter)
   workflow_dispatch:  # Allows manual trigger
 
 jobs:
