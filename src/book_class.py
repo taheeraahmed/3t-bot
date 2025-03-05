@@ -1,4 +1,5 @@
 import logging
+import time
 from datetime import datetime, timedelta
 
 from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
@@ -41,7 +42,8 @@ def book_gym_class(credentials: UserCredentials):
         future_date = (datetime.today() + timedelta(days=7)).strftime("%Y-%m-%d")
         booking_url = f"https://www.3t.no/booking/gruppetimer?FROM_DATE={future_date}&TO_DATE={future_date}"
         page.goto(booking_url)
-        wait_for_page_to_load(logger, page, browser)
+        # wait_for_page_to_load(logger, page, browser) this doesn't work?
+        time.sleep(3)
         # find the list of classes
         class_list_container = page.locator(
             "div.vertical-container.vertical-container__horizontal-placement--center.vertical-container__width--full"
