@@ -20,7 +20,7 @@ def wait_for_page_to_load(logger, page, browser):
         browser.close()
         raise  # Re-raise the error to stop execution
 
-    logger.info("✅ Page loaded successfully!")
+    logger.info(f"✅ Page loaded successfully: {page}")
 
 
 def book_gym_class(credentials: UserCredentials):
